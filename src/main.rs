@@ -92,7 +92,7 @@ fn main() {
 
     // Camera
 
-    let cam = Camera::new();
+    let cam = Camera::new(90.0, ASPECT_RATIO);
 
     // Render
 

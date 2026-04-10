@@ -1,3 +1,4 @@
+#![allow(unused)]
 mod camera;
 mod color;
 mod common;

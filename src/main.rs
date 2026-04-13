@@ -15,7 +15,7 @@ use rayon::prelude::*;
 
 use camera::Camera;
 use color::Color;
-use hittable::{HitRecord, Hittable};
+use hittable::Hittable;
 use hittable_list::HittableList;
 use material::{Dielectric, Lambertian, Metal};
 use ray::Ray;
@@ -28,17 +28,9 @@ fn ray_color(r: &Ray, world: &dyn Hittable, depth: i32) -> Color {
         return Color::new(0.0, 0.0, 0.0);
     }
 
-    let mut rec = HitRecord::new();
-    if world.hit(r, 0.001, common::INFINITY, &mut rec) {
-        let mut attenuation = Color::default();
-        let mut scattered = Ray::default();
-        if rec
-            .mat
-            .as_ref()
-            .unwrap()
-            .scatter(r, &rec, &mut attenuation, &mut scattered)
-        {
-            return attenuation * ray_color(&scattered, world, depth - 1);
+    if let Some(rec) = world.hit(r, 0.001, common::INFINITY) {
+        if let Some(scatter_rec) = rec.mat.scatter(r, &rec) {
+            return scatter_rec.attenuation * ray_color(&scatter_rec.scattered, world, depth - 1);
         }
         return Color::new(0.0, 0.0, 0.0);
     }

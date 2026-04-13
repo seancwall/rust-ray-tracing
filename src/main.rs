@@ -8,6 +8,7 @@ mod ray;
 mod sphere;
 mod vec3;
 
+use indicatif::{ProgressBar, ProgressStyle};
 use std::io;
 use std::sync::Arc;
 
@@ -105,6 +106,7 @@ fn random_scene() -> HittableList {
 }
 
 fn main() {
+    
     // Image
 
     const ASPECT_RATIO: f64 = 3.0 / 2.0;
@@ -112,11 +114,11 @@ fn main() {
     const IMAGE_HEIGHT: i32 = (IMAGE_WIDTH as f64 / ASPECT_RATIO) as i32;
     const SAMPLES_PER_PIXEL: i32 = 100;
     const MAX_DEPTH: i32 = 50;
-
+    
     // World
-
+    
     let world = random_scene();
-
+    
     // Camera
 
     let lookfrom = Point3::new(13.0, 2.0, 3.0);
@@ -138,9 +140,15 @@ fn main() {
     // Render
 
     print!("P3\n{} {}\n255\n", IMAGE_WIDTH, IMAGE_HEIGHT);
+    
+    eprint!("Render progress\n");
+
+    let pb = ProgressBar::new(IMAGE_HEIGHT as u64);
+    pb.set_style(ProgressStyle::default_bar()
+        .template("{msg}{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos}/{len} ({eta})")
+        .unwrap());
 
     for j in (0..IMAGE_HEIGHT).rev() {
-        eprint!("\rScanlines remaining: {} ", j);
         let pixel_colors: Vec<_> = (0..IMAGE_WIDTH)
             .into_par_iter()
             .map(|i| {
@@ -157,7 +165,8 @@ fn main() {
         for pixel_color in pixel_colors {
             color::write_color(&mut io::stdout(), pixel_color, SAMPLES_PER_PIXEL);
         }
+        pb.inc(1);
     }
 
-    eprint!("\nDone.\n");
+    pb.finish_with_message("Done!");
 }

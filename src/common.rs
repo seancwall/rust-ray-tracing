@@ -1,8 +1,9 @@
 // Constants
+use core::f64;
 use rand::Rng;
 
 pub use std::f64::consts::PI;
-pub use std::f64::INFINITY;
+pub use f64::INFINITY;
 
 // Utility functions
 
